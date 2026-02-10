@@ -35,7 +35,9 @@ pipeline {
         
         stage('Quality Gate') {
             steps {
-                waitForQualityGate abortPipeline: false
+                 timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
         
@@ -69,12 +71,12 @@ pipeline {
     
     post {
         success {
-            mail to: 'votre_email@gmail.com',
+            mail to: 'zavarcedrick66@gmail.com',
                  subject: "Build & Deploy SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
                  body: "La calculatrice a été compilée, testée, analysée, containerisée et déployée sur Kubernetes avec succès!"
         }
         failure {
-            mail to: 'votre_email@gmail.com',
+            mail to: 'zavarcedrick66@gmail.com',
                  subject: "Build & Deploy FAILED: Calculatrice #${env.BUILD_NUMBER}",
                  body: "Le build/deploy a échoué. Consultez les logs: ${env.BUILD_URL}"
         }
