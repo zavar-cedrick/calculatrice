@@ -25,6 +25,20 @@ pipeline {
             }
         }
         
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice'
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                waitForQualityGate abortPipeline: false
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
@@ -48,7 +62,7 @@ pipeline {
         success {
             mail to: 'votre_email@gmail.com',
                  subject: "Build SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
-                 body: "La calculatrice a été compilée, testée et déployée avec succès!"
+                 body: "La calculatrice a été compilée, testée, analysée par SonarQube et déployée avec succès!"
         }
         failure {
             mail to: 'votre_email@gmail.com',
