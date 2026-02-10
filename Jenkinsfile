@@ -60,7 +60,7 @@ pipeline {
             steps {
                 sh '''
                     kubectl apply -f k8s-deployment.yaml
-                    kubectl rollout status deployment/calculatrice-deployment
+                    kubectl rollout status deployment/calculatrice-deployment --timeout=5m
                 '''
             }
         }
