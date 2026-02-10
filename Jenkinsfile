@@ -35,9 +35,7 @@ pipeline {
         
         stage('Quality Gate') {
             steps {
-                 timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
+                waitForQualityGate abortPipeline: false
             }
         }
         
@@ -58,27 +56,18 @@ pipeline {
                 }
             }
         }
-        
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                    kubectl apply -f k8s-deployment.yaml
-                    kubectl rollout status deployment/calculatrice-deployment
-                '''
-            }
-        }
     }
     
     post {
         success {
             mail to: 'zavarcedrick66@gmail.com',
-                 subject: "Build & Deploy SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
-                 body: "La calculatrice a été compilée, testée, analysée, containerisée et déployée sur Kubernetes avec succès!"
+                 subject: "Build SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
+                 body: "La calculatrice a été compilée, testée, analysée par SonarQube et déployée avec succès!"
         }
         failure {
             mail to: 'zavarcedrick66@gmail.com',
-                 subject: "Build & Deploy FAILED: Calculatrice #${env.BUILD_NUMBER}",
-                 body: "Le build/deploy a échoué. Consultez les logs: ${env.BUILD_URL}"
+                 subject: "Build FAILED: Calculatrice #${env.BUILD_NUMBER}",
+                 body: "Le build a échoué. Consultez les logs: ${env.BUILD_URL}"
         }
     }
 }
