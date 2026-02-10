@@ -25,13 +25,23 @@ pipeline {
             }
         }
         
+//         stage('SonarQube Analysis') {
+//             steps {
+//                 withSonarQubeEnv('SonarQube') {
+//                     sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice'
+//                 }
+//             }
+//         }
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice'
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice -Dsonar.login=$SONAR_TOKEN'
+                    }
                 }
             }
         }
+
         
         stage('Quality Gate') {
             steps {
