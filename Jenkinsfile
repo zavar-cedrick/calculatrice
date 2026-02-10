@@ -25,23 +25,13 @@ pipeline {
             }
         }
         
-//         stage('SonarQube Analysis') {
-//             steps {
-//                 withSonarQubeEnv('SonarQube') {
-//                     sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice'
-//                 }
-//             }
-//         }
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice -Dsonar.login=$SONAR_TOKEN'
-                    }
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=calculatrice'
                 }
             }
         }
-
         
         stage('Quality Gate') {
             steps {
@@ -66,18 +56,27 @@ pipeline {
                 }
             }
         }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    kubectl apply -f k8s-deployment.yaml
+                    kubectl rollout status deployment/calculatrice-deployment
+                '''
+            }
+        }
     }
     
     post {
         success {
             mail to: 'votre_email@gmail.com',
-                 subject: "Build SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
-                 body: "La calculatrice a été compilée, testée, analysée par SonarQube et déployée avec succès!"
+                 subject: "Build & Deploy SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
+                 body: "La calculatrice a été compilée, testée, analysée, containerisée et déployée sur Kubernetes avec succès!"
         }
         failure {
             mail to: 'votre_email@gmail.com',
-                 subject: "Build FAILED: Calculatrice #${env.BUILD_NUMBER}",
-                 body: "Le build a échoué. Consultez les logs: ${env.BUILD_URL}"
+                 subject: "Build & Deploy FAILED: Calculatrice #${env.BUILD_NUMBER}",
+                 body: "Le build/deploy a échoué. Consultez les logs: ${env.BUILD_URL}"
         }
     }
 }
