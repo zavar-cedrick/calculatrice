@@ -56,24 +56,16 @@ pipeline {
                 }
             }
         }
-//          stage('Deploy to Kubernetes') {
-//             steps {
-//                 sh '''
-//                     kubectl apply -f k8s-deployment.yaml
-//                     kubectl rollout status deployment/calculatrice-deployment --timeout=5m
-//                 '''
-//             }
-//         }
     }
     
     post {
         success {
-            mail to: 'zavarcedrick66@gmail.com',
+            mail to: 'votre_email@gmail.com',
                  subject: "Build SUCCESS: Calculatrice #${env.BUILD_NUMBER}",
                  body: "La calculatrice a été compilée, testée, analysée par SonarQube et déployée avec succès!"
         }
         failure {
-            mail to: 'zavarcedrick66@gmail.com',
+            mail to: 'votre_email@gmail.com',
                  subject: "Build FAILED: Calculatrice #${env.BUILD_NUMBER}",
                  body: "Le build a échoué. Consultez les logs: ${env.BUILD_URL}"
         }
